@@ -18,8 +18,11 @@ data class BookedSeat(
 class MovieBookingService(
     private val maxQuantityOfSeats: Int // Максимальное кол-во мест
 ) {
+    private val booked = mutableListOf<BookedSeat>()
     init {
-        TODO("Выбрасывать IllegalArgumentException, максимальное кол-во мест отрицательное или равно нулю")
+        if (maxQuantityOfSeats <= 0) {
+            throw IllegalArgumentException("Не положительное количество мест в зале, мест должно быть больше 0")
+        }
     }
 
     /**
@@ -32,7 +35,22 @@ class MovieBookingService(
      * @throws SeatAlreadyBookedException если место уже забронировано
      */
     fun bookSeat(movieId: String, seat: Int) {
-        TODO("Реализовать логику")
+        if (seat <= 0 || seat > maxQuantityOfSeats) {
+            throw IllegalArgumentException("Неправильное место, укажите место в диапозоне от 1 до $maxQuantityOfSeats")
+        }
+        var seatsBooked = 0
+        for (i in 1..maxQuantityOfSeats) {
+            if (isSeatBooked(movieId, i)) { seatsBooked++ }
+        }
+
+        if (seatsBooked == maxQuantityOfSeats) {
+            throw NoAvailableSeatException("Места закончились, попробуйте другой фильм")
+        }
+
+        if (isSeatBooked(movieId, seat)) {
+            throw SeatAlreadyBookedException("Место уже занято, выберите другое")
+        }
+        booked.add(BookedSeat(movieId, seat))
     }
 
     /**
@@ -43,7 +61,10 @@ class MovieBookingService(
      * @throws NoSuchElementException если место не было забронировано
      */
     fun cancelBooking(movieId: String, seat: Int) {
-        TODO("Реализовать логику")
+        if (!isSeatBooked(movieId, seat)) {
+            throw NoSuchElementException("Место было свободно, ошибка отмены бронирования")
+        }
+        booked.removeIf { it.movieId == movieId && it.seat == seat }
     }
 
     /**
@@ -52,6 +73,6 @@ class MovieBookingService(
      * @return true если место занято, false иначе
      */
     fun isSeatBooked(movieId: String, seat: Int): Boolean {
-        TODO("Реализовать логику")
+        return booked.any { it.movieId == movieId && it.seat == seat }
     }
 }
