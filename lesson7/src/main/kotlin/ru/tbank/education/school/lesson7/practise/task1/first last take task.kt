@@ -22,5 +22,9 @@ fun sliceEvents(
     events: List<Event>,
     nToday: Int
 ): Triple<Event?, List<Event>, List<Event>> {
-    TODO()
+    return Triple(
+        events.sortedBy { it.date }.firstOrNull { it.type == EventType.ERROR },
+        events.sortedBy { it.date }.filter{ it.type == EventType.LOGIN }.takeLast(2),
+        events.sortedBy { it.date }.filter{ it.date.toLocalDate() == LocalDate.now() }.take(nToday)
+    )
 }

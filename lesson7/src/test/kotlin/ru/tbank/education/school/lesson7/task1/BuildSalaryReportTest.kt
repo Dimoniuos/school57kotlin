@@ -36,7 +36,6 @@ class BuildSalaryReportTest {
     @Test
     fun `handles empty list`() {
         val report = buildSalaryReport(emptyList())
-
         assertEquals(0.0, report.totalSalary, 0.001)
         assertEquals(0.0, report.avgSalary, 0.001)
         assertEquals(0, report.departmentsCount)
