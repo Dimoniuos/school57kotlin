@@ -2,7 +2,7 @@ package ru.tbank.education.school.lesson8.homework.library
 
 class LibraryService {
     private val books = mutableMapOf<String, Book>()
-    private val borrowedBooks = mutableSetOf<String>()
+    private val borrowedBooks = mutableMapOf<String, String>()
     private val borrowerFines = mutableMapOf<String, Int>()
 
     fun addBook(book: Book) {
@@ -10,13 +10,22 @@ class LibraryService {
     }
 
     fun borrowBook(isbn: String, borrower: String) {
-        if (borrowedBooks.contains(isbn)) {
-            return
+        if (!books.containsKey(isbn)) {
+            throw IllegalArgumentException("Такой книги нет")
         }
-        borrowedBooks.add(isbn)
+        if (borrowedBooks.contains(isbn)) {
+            throw IllegalArgumentException("Книга уже была выдана")
+        }
+        if (hasOutstandingFines(borrower)) {
+            throw IllegalArgumentException("У читателя есть непогашенный штраф")
+        }
+        borrowedBooks[isbn] = borrower
     }
 
     fun returnBook(isbn: String) {
+        if (!borrowedBooks.contains(isbn)) {
+            throw IllegalArgumentException("Книга не была выдана")
+        }
         borrowedBooks.remove(isbn)
     }
 
@@ -25,10 +34,11 @@ class LibraryService {
     }
 
     fun calculateOverdueFine(isbn: String, daysOverdue: Int): Int {
-        if (!borrowedBooks.contains(isbn)) {
-            return 0
-        }
-        return daysOverdue * 60
+        if (daysOverdue <= 10) { return 0 }
+        val fine = (daysOverdue - 10) * 60
+        val person = borrowedBooks[isbn]!!
+        borrowerFines[person] = borrowerFines.getOrDefault(person, 0) + fine
+        return fine
     }
 
     private fun hasOutstandingFines(borrower: String): Boolean {

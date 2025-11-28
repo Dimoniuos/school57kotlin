@@ -99,7 +99,7 @@ class LibraryServiceTest {
         library.addBook(book1)
         library.addBook(book2)
         library.borrowBook("978-0-452-28423-4", "Ivan")
-
+        library.calculateOverdueFine("978-0-452-28423-4", daysOverdue = 15)
         assertThrows(IllegalArgumentException::class.java) {
             library.borrowBook("978-0-441-17271-9", "Ivan")
         }
