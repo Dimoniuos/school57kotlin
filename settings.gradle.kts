@@ -20,7 +20,7 @@ include("lesson6")
 include("lesson7")
 //include("simple")
 include("lesson8")
-//include("lesson9")
+include("lesson9")
 //include("lesson10")
 
 include("lesson9")
