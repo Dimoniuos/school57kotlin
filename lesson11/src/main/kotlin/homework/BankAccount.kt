@@ -18,10 +18,18 @@ package homework
 class BankAccount(val id: String, var balance: Int) {
 
     fun transfer(to: BankAccount, amount: Int) {
-        synchronized(this) {
+        var firstLock: BankAccount
+        var secondLock: BankAccount
+        if (this.id < to.id) {
+            firstLock = this
+            secondLock = to
+        } else {
+            firstLock = to
+            secondLock = this
+        }
+        synchronized(firstLock) {
             Thread.sleep(10)
-            
-            synchronized(to) {
+            synchronized(secondLock) {
                 if (balance >= amount) {
                     balance -= amount
                     to.balance += amount

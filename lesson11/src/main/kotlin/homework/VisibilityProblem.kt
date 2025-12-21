@@ -9,6 +9,7 @@
 class VisibilityProblem {
 
     private var running = true
+    private val lock = Any()
 
     /**
      * Создает и возвращает поток writer.
@@ -20,10 +21,11 @@ class VisibilityProblem {
             // Имитация работы
             repeat(100) {
                 Thread.sleep(10)
-                Thread.yield()
             }
 
-            running = false
+            synchronized(lock) {
+                running = false
+            }
             println("Writer: установил running = false (изменение может быть не видно)")
         }
     }
@@ -36,12 +38,15 @@ class VisibilityProblem {
     fun startReader(): Thread {
         return Thread {
             println("Reader: начал работу (ждет running = false)")
-
-            while (running) {
-
-            }
+            while (isRunning()) { }
 
             println("Reader: завершил работу (увидел running = false)")
+        }
+    }
+
+    private fun isRunning(): Boolean {
+        synchronized(lock) {
+            return running
         }
     }
 }
