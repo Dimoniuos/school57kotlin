@@ -18,7 +18,9 @@ class UnsafeCounter {
 
     suspend fun increment() {
         delay(1)
-        value++
+        synchronized(this) {
+            value++
+        }
     }
 
     fun getValue(): Int = value
