@@ -1,6 +1,7 @@
 package ru.tbank.education.school.lesson6.creditriskanalyzer.rules
 
 import ru.tbank.education.school.lesson6.creditriskanalyzer.models.Client
+import ru.tbank.education.school.lesson6.creditriskanalyzer.models.PaymentRisk
 import ru.tbank.education.school.lesson6.creditriskanalyzer.models.ScoringResult
 import ru.tbank.education.school.lesson6.creditriskanalyzer.repositories.AccountRepository
 import ru.tbank.education.school.lesson6.creditriskanalyzer.repositories.LoanRepository
@@ -23,10 +24,28 @@ class LoanDebtRatioRule(
     private val loanRepo: LoanRepository,
     private val accountRepo: AccountRepository,
 ) : ScoringRule {
-
     override val ruleName: String = "Loan Debt Ratio"
-
     override fun evaluate(client: Client): ScoringResult {
-        TODO()
+        val loans = loanRepo.getLoans(client.id)
+        val accounts = accountRepo.getAccounts(client.id)
+        var loansSum : Long = 0
+        for (loan in loans) {
+            if (loan.isClosed == false) {
+                loansSum += loan.debt
+            }
+        }
+        var balance : Long = 0
+        for (account in accounts) {
+            balance += account.balance
+        }
+        val risk = when {
+            loansSum > 3 * balance -> PaymentRisk.HIGH
+            loansSum > balance -> PaymentRisk.MEDIUM
+            else -> PaymentRisk.LOW
+        }
+        return ScoringResult(
+            ruleName,
+            risk
+        )
     }
 }
